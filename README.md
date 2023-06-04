@@ -1,13 +1,13 @@
-# Metro2033-Fly-Mode
+# Metro2033 fly mode
 
-Metro 2033 ist ein First Person Shooter.
+Metro 2033 is a first person shooter.
 
-In dieser Modifikation hatte ich meinen ersten Kontakt mit Lua, womit
-ich eine Konversion der Kamerarotationen vornahm, dann die Richtungsvektoren daraus
-zog und diesen zum Positionsvektor addiert habe.
-Der Spieler bewegt sich damit frei durch die Luft in die Richtung in der die Kamera
-gerichtet ist.
+In this modification I had my first contact with Lua, with which
+conversion of the camera rotations, then the direction vectors and the position vector
+and added this to the position vector.
+The player moves freely through the air in the direction in which the camera is pointed.
+is directed.
 
-## Sprachen
-- Assembler
+## Languages
+- Assembly
 - Lua
