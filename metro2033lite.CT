@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="29">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>16</ID>
+      <Description>"Creative Fly"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{$lua}
+hasBeenValid = false
+isFlyMode = false
+keyToggled = false
+
+PI = 3.1415926
+x = 0
+y = 0
+z = 0
+rotX = 0
+rotZ = 0
+
+s = 0.2
+
+dx = 0
+dy = 0
+dz = 0
+
+function myfunction(array)
+  rotY = readFloat(array)
+  rotX = readFloat(array+4)
+  x    = readFloat(array+8)
+  y    = readFloat(array+12)
+  z    = readFloat(array+16)
+
+  --y = y + 0.01
+  dy = -math.sin(rotY)
+  dx = math.cos(rotY) * math.sin(rotX)
+  dz = math.cos(rotY) * math.cos(rotX)
+
+  --dx = math.cos(rotY) * math.cos(rotX)
+  --dy = math.cos(rotY) * math.sin(rotX)
+  --dz = math.sin(rotY)
+
+  if isKeyPressed(VK_F) and keyToggled == false then
+    isFlyMode = not isFlyMode
+    keyToggled = true
+  elseif not isKeyPressed(VK_F) then
+    keyToggled = false
+  end
+
+  if isFlyMode == true then
+    if isKeyPressed(VK_SPACE) then
+      y = y + 0.03
+      if isKeyPressed(VK_W) then
+        x = x + s*dx
+        z = z + s*dz
+      end
+    elseif isKeyPressed(VK_W) then
+      x = x + s*dx
+      y = y + s*dy
+      z = z + s*dz
+    end
+
+    writeFloat(array+8, x)
+    writeFloat(array+12, y)
+    writeFloat(array+16, z)
+  end
+
+  return 4
+end
+
+{$asm}
+
+loadlibrary(luaclient-x86_64.dll)
+luacall(openLuaServer('CELUASERVER'))
+
+CELUA_ServerName:
+db 'CELUASERVER',0
+
+alloc(functionidRot,4)
+alloc(functionnameRot,16)
+
+functionidRot:
+dd 0
+
+functionnameRot:
+db 'myfunction',0
+
+[ENABLE]
+alloc(newmemRot, 2048)
+registersymbol(newmemRot)
+
+alloc(newmemPos, 2048)
+registersymbol(newmemPos)
+
+globalalloc(v_debug32, 32, "metro.exe"+24108F)
+v_debug32:
+dd 8
+
+alloc(v_debug64, 64, "metro.exe"+24108F)
+v_debug64:
+dq 8
+
+alloc(paramArr, 160)
+paramArr:
+dd 0
+dd 0
+dd 0
+dd 0
+dd 0
+registersymbol(paramArr)
+
+testt:
+dd (float)1.0
+
+newmemRot:
+movss [rcx+00000650],xmm1 { up down }
+movss [rcx+00000654],xmm2 { left right }
+
+fld dword ptr [rcx+00000650]
+fstp dword ptr [paramArr]
+
+fld [rcx+00000654]
+fstp dword ptr [paramArr+4]
+
+jmp metro.exe+24109F
+
+newmemPos:
+mov [rdi+000000E8],eax { Die ersten zwei Seiten }
+mov eax,[r15+0C]
+mov [rdi+000000EC],eax { oben unten }
+mov eax,[r15+10]
+mov [rdi+08],00000001
+mov [rdi+000000F0],eax { Die anderen beiden Seiten }
+
+fld dword ptr [rdi+000000E8]
+fstp dword ptr [paramArr+8]
+
+fld dword ptr [rdi+000000EC]
+fstp dword ptr [paramArr+C]
+
+fld dword ptr [rdi+000000F0]
+fstp dword ptr [paramArr+10]
+
+push eax
+sub rsp,60
+
+mov [rsp+20],rcx
+mov [rsp+28],rdx
+mov [rsp+30],r8
+mov [rsp+38],r9
+mov [rsp+40],r10
+mov [rsp+48],r11
+mov [rsp+50],rax
+
+mov ecx,[functionidRot]
+test ecx,ecx
+jne short hasrefidRot
+
+mov rcx, functionnameRot
+call CELUA_GetFunctionReferenceFromName
+mov [functionidRot],eax
+mov ecx,eax
+
+hasrefidRot:
+
+mov edx,1
+lea r8,[rsp+58]
+mov rax, paramArr
+mov [r8],rax
+
+mov r9, 1 // ursp 1
+sub rsp,8
+call CELUA_ExecuteFunctionByReference
+mov dword ptr [v_debug32], eax
+add rsp, 8
+
+mov rcx,[rsp+20]
+mov rdx,[rsp+28]
+mov r8,[rsp+30]
+mov r9,[rsp+38]
+mov r10,[rsp+40]
+mov r11,[rsp+48]
+mov rax,[rsp+50]
+
+add rsp,60
+pop eax
+
+fld dword ptr [paramArr+8]
+fstp dword ptr [rdi+000000E8]
+
+fld dword ptr [paramArr+C]
+fstp dword ptr [rdi+000000EC]
+
+fld dword ptr [paramArr+10]
+fstp dword ptr [rdi+000000F0]
+
+jmp metro.exe+89E050
+
+metro.exe+24108F:
+jmp newmemRot
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+
+metro.exe+89E02F:
+jmp newmemPos
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+
+[DISABLE]
+dealloc(newmemRot)
+dealloc(newmemPos)
+dealloc(functionidRot)
+dealloc(functionnameRot)
+dealloc(v_debug32)
+dealloc(v_debug64)
+dealloc(paramArr)
+
+unregistersymbol(newmemRot)
+unregistersymbol(newmemPos)
+unregistersymbol(paramArr)
+
+metro.exe+24108F:
+db F3 0F 11 89 50 06 00 00 F3 0F 11 91 54 06 00 00
+
+metro.exe+89E02F:
+db 89 87 E8 00 00 00 41 8B 47 0C 89 87 EC 00 00 00 41 8B 47 10 C7 47 08 01 00 00 00 89 87 F0 00 00 00
+
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <CheatCodes>
+    <CodeEntry>
+      <Description>Change of mov [rcx+000000D0],r11</Description>
+      <AddressString>ntdll.dll+9E9A9</AddressString>
+      <Before>
+        <Byte>91</Byte>
+        <Byte>C8</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Before>
+      <Actual>
+        <Byte>4C</Byte>
+        <Byte>89</Byte>
+        <Byte>99</Byte>
+        <Byte>D0</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Actual>
+      <After>
+        <Byte>0F</Byte>
+        <Byte>AE</Byte>
+        <Byte>81</Byte>
+        <Byte>00</Byte>
+        <Byte>01</Byte>
+      </After>
+    </CodeEntry>
+  </CheatCodes>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>newmem</Name>
+      <Address>296E49E0000</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>funcName</Name>
+      <Address>296E49E0800</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>strToPrint</Name>
+      <Address>06100900</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>intToPrint</Name>
+      <Address>00E10900</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>luainit</Name>
+      <Address>00E10B00</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>LuaFunctionCall</Name>
+      <Address>00E10B80</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>luaserverinitialized</Name>
+      <Address>00E10C00</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>luaservername</Name>
+      <Address>00E10C10</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>paramList</Name>
+      <Address>296E49E0900</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>addresswithluafunctionidstored</Name>
+      <Address>296E49E0940</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>v_debug32</Name>
+      <Address>7FF72DE60000</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>v_debug64</Name>
+      <Address>255FB080020</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>v_debug</Name>
+      <Address>7FF72DE60020</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+</CheatTable>
