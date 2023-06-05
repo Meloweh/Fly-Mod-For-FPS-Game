@@ -1,6 +1,6 @@
-# Metro2033 fly mode
+# Fly Mod for FPS Game Metro 2033
 
-Metro 2033 is a first person shooter.
+Metro2033 is a FPS game.
 
 In this modification I had my first contact with Lua, with which
 conversion of the camera rotations, then the direction vectors and the position vector
