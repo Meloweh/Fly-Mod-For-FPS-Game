@@ -1,12 +1,12 @@
-# Fly Mod for FPS Game Metro 2033
+# Fly Mod for a FPS Game
 
-Metro2033 is a FPS game.
+The game Metro2033 was used for this instance.
 
-In this modification I had my first contact with Lua, with which
-conversion of the camera rotations, then the direction vectors and the position vector
-and added this to the position vector.
+In this modification I had my first contact with Lua, with which I applied a
+conversion of the camera rotation into the directional vectors and the positional vector of the player
+and then added the result to the positional vector.
 
-The player moves freely through the air in the direction in which the camera is pointed at.
+By using the camera the player will be enabled to fly around and navigate through the air.
 
 ## Languages
 - Assembly
